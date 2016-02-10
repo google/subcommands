@@ -11,40 +11,40 @@ Set up a 'print' subcommand:
 
 ```
 import (
-	"flag"
-	"fmt"
-	"os"
-	"strings"
+  "flag"
+  "fmt"
+  "os"
+  "strings"
 
-	"github.com/google/subcommands"
-	"golang.org/x/net/context"
+  "github.com/google/subcommands"
+  "golang.org/x/net/context"
 )
 
 type printCmd struct {
-	capitalize bool
+  capitalize bool
 }
 
 func (*printCmd) Name() string     { return "print" }
 func (*printCmd) Synopsis() string { return "Print args to stdout." }
 func (*printCmd) Usage() string {
-	return `print [-capitalize] <some text>:
+  return `print [-capitalize] <some text>:
   Print args to stdout.
 `
 }
 
 func (p *printCmd) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&p.capitalize, "capitalize", false, "capitalize output")
+  f.BoolVar(&p.capitalize, "capitalize", false, "capitalize output")
 }
 
 func (p *printCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
   for _, arg := range f.Args() {
-		if p.capitalize {
-			arg = strings.ToUpper(arg)
-		}
-		fmt.Printf("%s ", arg)
-	}
+    if p.capitalize {
+      arg = strings.ToUpper(arg)
+    }
+    fmt.Printf("%s ", arg)
+  }
   fmt.Println()
-	return subcommands.ExitSuccess
+  return subcommands.ExitSuccess
 }
 ```
 
@@ -59,7 +59,7 @@ func main() {
   subcommands.Register(&print{}, "")
 
   ctx := context.Background()
-	os.Exit(int(subcommands.Execute(ctx)))
+  os.Exit(int(subcommands.Execute(ctx)))
 }
 ```
 

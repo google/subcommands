@@ -26,7 +26,7 @@ import (
 	"sort"
 
 	"flag"
-"golang.org/x/net/context"
+	"golang.org/x/net/context"
 )
 
 // A Command represents a single command.
