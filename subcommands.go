@@ -19,13 +19,13 @@ limitations under the License.
 package subcommands
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
 	"path"
 	"sort"
 
-	"flag"
 	"golang.org/x/net/context"
 )
 
