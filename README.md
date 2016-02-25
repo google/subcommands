@@ -9,7 +9,7 @@ This is not an official Google product.
 
 Set up a 'print' subcommand:
 
-```
+```go
 import (
   "flag"
   "fmt"
@@ -51,7 +51,7 @@ func (p *printCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 Register using the default Commander, also use some built in subcommands,
 finally run Execute using ExitStatus as the exit code:
 
-```
+```go
 func main() {
   subcommands.Register(subcommands.HelpCommand(), "")
   subcommands.Register(subcommands.FlagsCommand(), "")
