@@ -54,6 +54,9 @@ type Commander struct {
 	topFlags  *flag.FlagSet // top-level flags
 	important []string      // important top-level flags
 	name      string        // normally path.Base(os.Args[0])
+
+	Output io.Writer // Output specifies where the commander should write its output (default: os.Stdout).
+	Error  io.Writer // Error specifies where the commander should write its error (default: os.Stderr).
 }
 
 // A commandGroup represents a set of commands about a common topic.
@@ -79,8 +82,10 @@ func NewCommander(topLevelFlags *flag.FlagSet, name string) *Commander {
 	cdr := &Commander{
 		topFlags: topLevelFlags,
 		name:     name,
+		Output:   os.Stdout,
+		Error:    os.Stderr,
 	}
-	topLevelFlags.Usage = func() { cdr.explain(os.Stderr) }
+	topLevelFlags.Usage = func() { cdr.explain(cdr.Error) }
 	return cdr
 }
 
@@ -129,7 +134,7 @@ func (cdr *Commander) Execute(ctx context.Context, args ...interface{}) ExitStat
 				continue
 			}
 			f := flag.NewFlagSet(name, flag.ContinueOnError)
-			f.Usage = func() { explain(os.Stderr, cmd) }
+			f.Usage = func() { explain(cdr.Error, cmd) }
 			cmd.SetFlags(f)
 			if f.Parse(cdr.topFlags.Args()[1:]) != nil {
 				return ExitUsageError
@@ -225,7 +230,7 @@ func (h *helper) Usage() string {
 func (h *helper) Execute(_ context.Context, f *flag.FlagSet, args ...interface{}) ExitStatus {
 	switch f.NArg() {
 	case 0:
-		(*Commander)(h).explain(os.Stdout)
+		(*Commander)(h).explain(h.Output)
 		return ExitSuccess
 
 	case 1:
@@ -234,11 +239,11 @@ func (h *helper) Execute(_ context.Context, f *flag.FlagSet, args ...interface{}
 				if f.Arg(0) != cmd.Name() {
 					continue
 				}
-				explain(os.Stdout, cmd)
+				explain(h.Output, cmd)
 				return ExitSuccess
 			}
 		}
-		fmt.Fprintf(os.Stderr, "Subcommand %s not understood\n", f.Arg(0))
+		fmt.Fprintf(h.Error, "Subcommand %s not understood\n", f.Arg(0))
 	}
 
 	f.Usage()
@@ -272,7 +277,7 @@ func (flg *flagger) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 
 	if f.NArg() == 0 {
 		if flg.topFlags == nil {
-			fmt.Println("No top-level flags are defined.")
+			fmt.Fprintln(flg.Output, "No top-level flags are defined.")
 		} else {
 			flg.topFlags.PrintDefaults()
 		}
@@ -285,13 +290,13 @@ func (flg *flagger) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 				continue
 			}
 			subflags := flag.NewFlagSet(cmd.Name(), flag.PanicOnError)
-			subflags.SetOutput(os.Stdout)
+			subflags.SetOutput(flg.Output)
 			cmd.SetFlags(subflags)
 			subflags.PrintDefaults()
 			return ExitSuccess
 		}
 	}
-	fmt.Fprintf(os.Stderr, "Subcommand %s not understood\n", f.Arg(0))
+	fmt.Fprintf(flg.Error, "Subcommand %s not understood\n", f.Arg(0))
 	return ExitFailure
 }
 
@@ -319,7 +324,7 @@ func (l *lister) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) E
 
 	for _, group := range l.commands {
 		for _, cmd := range group.commands {
-			fmt.Printf("%s\n", cmd.Name())
+			fmt.Fprintf(l.Output, "%s\n", cmd.Name())
 		}
 	}
 	return ExitSuccess
