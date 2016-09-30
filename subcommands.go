@@ -19,14 +19,13 @@ limitations under the License.
 package subcommands
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"path"
 	"sort"
-
-	"golang.org/x/net/context"
 )
 
 // A Command represents a single command.
