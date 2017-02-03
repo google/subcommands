@@ -11,13 +11,13 @@ Set up a 'print' subcommand:
 
 ```go
 import (
+  "context"
   "flag"
   "fmt"
   "os"
   "strings"
 
   "github.com/google/subcommands"
-  "golang.org/x/net/context"
 )
 
 type printCmd struct {
