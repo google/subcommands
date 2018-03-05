@@ -175,7 +175,7 @@ func (cdr *Commander) explain(w io.Writer) {
 	for _, name := range cdr.important {
 		f := cdr.topFlags.Lookup(name)
 		if f == nil {
-			panic("Important flag is not defined")
+			panic(fmt.Sprintf("Important flag (%s) is not defined", name))
 		}
 		fmt.Fprintf(w, "  -%s=%s: %s\n", f.Name, f.DefValue, f.Usage)
 	}
