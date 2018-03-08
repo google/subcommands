@@ -1,0 +1,33 @@
+package bar
+
+import (
+	"context"
+	"flag"
+
+	"github.com/google/subcommands"
+)
+
+type BarCmd struct{}
+
+func (*BarCmd) Name() string {
+	return "bar"
+}
+
+func (*BarCmd) Synopsis() string {
+	return "sit amet, consectetur"
+}
+
+func (*BarCmd) Usage() string {
+	return `usage: bar [flags]
+
+wopr bar -x`
+}
+
+func (b *BarCmd) SetFlags(f *flag.FlagSet) {
+	// TODO(Bob)
+}
+
+func (b *BarCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+	// TODO(Bob)
+	return subcommands.ExitSuccess
+}

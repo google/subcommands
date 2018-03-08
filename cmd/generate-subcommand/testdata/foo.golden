@@ -1,0 +1,33 @@
+package main
+
+import (
+	"context"
+	"flag"
+
+	"github.com/google/subcommands"
+)
+
+type fooCmd struct{}
+
+func (*fooCmd) Name() string {
+	return "foo"
+}
+
+func (*fooCmd) Synopsis() string {
+	return "lorem ipsum dolor"
+}
+
+func (*fooCmd) Usage() string {
+	return `usage: foo [flags]
+
+wopr foo -q=42`
+}
+
+func (f *fooCmd) SetFlags(f *flag.FlagSet) {
+	// TODO(Alice)
+}
+
+func (f *fooCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+	// TODO(Alice)
+	return subcommands.ExitSuccess
+}
