@@ -334,6 +334,20 @@ func (cdr *Commander) CommandsCommand() Command {
 	return (*lister)(cdr)
 }
 
+// An aliaser is a Command wrapping another Command but returning a
+// different name as it's alias
+type aliaser struct {
+	alias string
+	Command
+}
+
+func (a *aliaser) Name() string { return a.alias }
+
+// Alias returns a Command alias which implements a "commands" subcommand.
+func Alias(alias string, cmd Command) Command {
+	return &aliaser{alias, cmd}
+}
+
 // DefaultCommander is the default commander using flag.CommandLine for flags
 // and os.Args[0] for the command name.
 var DefaultCommander *Commander
