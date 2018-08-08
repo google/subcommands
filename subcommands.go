@@ -26,6 +26,7 @@ import (
 	"os"
 	"path"
 	"sort"
+	"strings"
 )
 
 // A Command represents a single command.
@@ -197,8 +198,32 @@ func explainGroup(w io.Writer, group *commandGroup) {
 		fmt.Fprintf(w, "Subcommands for %s:\n", group.name)
 	}
 	sort.Sort(group)
+
+	aliases := make(map[string][]string)
 	for _, cmd := range group.commands {
-		fmt.Fprintf(w, "\t%-15s  %s\n", cmd.Name(), cmd.Synopsis())
+		if alias, ok := cmd.(*aliaser); ok {
+			root := dealias(alias).Name()
+
+			if _, ok := aliases[root]; !ok {
+				aliases[root] = []string{}
+			}
+			aliases[root] = append(aliases[root], alias.Name())
+		}
+	}
+
+	for _, cmd := range group.commands {
+		if _, ok := cmd.(*aliaser); ok {
+			continue
+		}
+
+		name := cmd.Name()
+		names := []string{name}
+
+		if a, ok := aliases[name]; ok {
+			names = append(names, a...)
+		}
+
+		fmt.Fprintf(w, "\t%-15s  %s\n", strings.Join(names, ", "), cmd.Synopsis())
 	}
 	fmt.Fprintln(w)
 }
@@ -346,6 +371,16 @@ func (a *aliaser) Name() string { return a.alias }
 // Alias returns a Command alias which implements a "commands" subcommand.
 func Alias(alias string, cmd Command) Command {
 	return &aliaser{alias, cmd}
+}
+
+// dealias recursivly dealiases a command until a non-aliased command
+// is reached.
+func dealias(cmd Command) Command {
+	if alias, ok := cmd.(*aliaser); ok {
+		return dealias(alias.Command)
+	}
+
+	return cmd
 }
 
 // DefaultCommander is the default commander using flag.CommandLine for flags
