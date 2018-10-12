@@ -335,7 +335,7 @@ func (cdr *Commander) CommandsCommand() Command {
 }
 
 // An aliaser is a Command wrapping another Command but returning a
-// different name as it's alias
+// different name as its alias.
 type aliaser struct {
 	alias string
 	Command
