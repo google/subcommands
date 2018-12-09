@@ -55,8 +55,9 @@ type Commander struct {
 	important []string      // important top-level flags
 	name      string        // normally path.Base(os.Args[0])
 
-	Output io.Writer // Output specifies where the commander should write its output (default: os.Stdout).
-	Error  io.Writer // Error specifies where the commander should write its error (default: os.Stderr).
+	Parser func(f *flag.FlagSet, args []string) error // Parser allows customizing *flag.FlagSet parser function.
+	Output io.Writer                                  // Output specifies where the commander should write its output (default: os.Stdout).
+	Error  io.Writer                                  // Error specifies where the commander should write its error (default: os.Stderr).
 }
 
 // A commandGroup represents a set of commands about a common topic.
@@ -82,8 +83,11 @@ func NewCommander(topLevelFlags *flag.FlagSet, name string) *Commander {
 	cdr := &Commander{
 		topFlags: topLevelFlags,
 		name:     name,
-		Output:   os.Stdout,
-		Error:    os.Stderr,
+		Parser: func(f *flag.FlagSet, args []string) error {
+			return f.Parse(args)
+		},
+		Output: os.Stdout,
+		Error:  os.Stderr,
 	}
 	topLevelFlags.Usage = func() { cdr.explain(cdr.Error) }
 	return cdr
@@ -136,7 +140,7 @@ func (cdr *Commander) Execute(ctx context.Context, args ...interface{}) ExitStat
 			f := flag.NewFlagSet(name, flag.ContinueOnError)
 			f.Usage = func() { explain(cdr.Error, cmd) }
 			cmd.SetFlags(f)
-			if f.Parse(cdr.topFlags.Args()[1:]) != nil {
+			if cdr.Parser(f, cdr.topFlags.Args()[1:]) != nil {
 				return ExitUsageError
 			}
 			return cmd.Execute(ctx, f, args...)
