@@ -226,6 +226,8 @@ func (cdr *Commander) explain(w io.Writer) {
 		fmt.Fprintln(w, "\nNo top level flags.")
 		return
 	}
+
+	sort.Strings(cdr.important)
 	if len(cdr.important) == 0 {
 		fmt.Fprintf(w, "\nUse \"%s flags\" for a list of top-level flags\n", cdr.name)
 		return
