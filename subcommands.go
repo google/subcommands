@@ -141,8 +141,8 @@ func (cdr *Commander) VisitGroups(fn func(*CommandGroup)) {
 	}
 }
 
-// VisitCommands visits each command command in registered order grouped by
-// group in lexicographical order, calling fn for each.
+// VisitCommands visits each command in registered order grouped by
+// command group in lexicographical order, calling fn for each.
 func (cdr *Commander) VisitCommands(fn func(*CommandGroup, Command)) {
 	cdr.VisitGroups(func(g *CommandGroup) {
 		for _, cmd := range g.commands {
