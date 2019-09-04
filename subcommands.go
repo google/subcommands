@@ -63,7 +63,7 @@ type Commander struct {
 	Error  io.Writer // Error specifies where the commander should write its error (default: os.Stderr).
 }
 
-// A commandGroup represents a set of commands about a common topic.
+// A CommandGroup represents a set of commands about a common topic.
 type CommandGroup struct {
 	name     string
 	commands []Command
