@@ -172,6 +172,15 @@ func (cdr *Commander) VisitAll(fn func(*flag.Flag)) {
 	}
 }
 
+// countFlags returns the number of top-level flags defined, even those not set.
+func (cdr *Commander) countTopFlags() int {
+	count := 0
+	cdr.VisitAll(func(*flag.Flag) {
+		count++
+	})
+	return count
+}
+
 // Execute should be called once the top-level-flags on a Commander
 // have been initialized. It finds the correct subcommand and executes
 // it, and returns an ExitStatus with the result. On a usage error, an
@@ -229,7 +238,9 @@ func (cdr *Commander) explain(w io.Writer) {
 
 	sort.Strings(cdr.important)
 	if len(cdr.important) == 0 {
-		fmt.Fprintf(w, "\nUse \"%s flags\" for a list of top-level flags\n", cdr.name)
+		if cdr.countTopFlags() > 0 {
+			fmt.Fprintf(w, "\nUse \"%s flags\" for a list of top-level flags\n", cdr.name)
+		}
 		return
 	}
 
