@@ -184,7 +184,7 @@ func (cdr *Commander) countTopFlags() int {
 // Execute should be called once the top-level-flags on a Commander
 // have been initialized. It finds the correct subcommand and executes
 // it, and returns an ExitStatus with the result. On a usage error, an
-// appropriate message is printed to os.Stderr, and ExitUsageError is
+// appropriate message is printed to *Commander.Error, and ExitUsageError is
 // returned. The additional args are provided as-is to the Execute method
 // of the selected Command.
 func (cdr *Commander) Execute(ctx context.Context, args ...interface{}) ExitStatus {
@@ -201,6 +201,7 @@ func (cdr *Commander) Execute(ctx context.Context, args ...interface{}) ExitStat
 				continue
 			}
 			f := flag.NewFlagSet(name, flag.ContinueOnError)
+			f.SetOutput(cdr.Error)
 			f.Usage = func() { cdr.ExplainCommand(cdr.Error, cmd) }
 			cmd.SetFlags(f)
 			if f.Parse(cdr.topFlags.Args()[1:]) != nil {
