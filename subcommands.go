@@ -440,7 +440,7 @@ type aliaser struct {
 
 func (a *aliaser) Name() string { return a.alias }
 
-// Alias returns a Command alias which implements a "commands" subcommand.
+// Alias returns a Command alias with the given name.
 func Alias(alias string, cmd Command) Command {
 	return &aliaser{alias, cmd}
 }
