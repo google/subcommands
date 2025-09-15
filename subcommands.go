@@ -203,7 +203,17 @@ func (cdr *Commander) Execute(ctx context.Context, args ...interface{}) ExitStat
 			f := flag.NewFlagSet(name, flag.ContinueOnError)
 			f.Usage = func() { cdr.ExplainCommand(cdr.Error, cmd) }
 			cmd.SetFlags(f)
-			if f.Parse(cdr.topFlags.Args()[1:]) != nil {
+			if err := f.Parse(cdr.topFlags.Args()[1:]); err != nil {
+				if err == flag.ErrHelp {
+					// For top-level flags, `flags.Parse()` will handle
+					// `--help` and `-h` flags by printing usage information
+					// and exiting with status 0 (success).
+					//
+					// For consistency, we return ExitSuccess here so that
+					// calling a subcommand with `--help` or `-h` will also be
+					// treated as success.
+					return ExitSuccess
+				}
 				return ExitUsageError
 			}
 			return cmd.Execute(ctx, f, args...)
