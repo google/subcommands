@@ -27,6 +27,8 @@ import (
 	"path"
 	"sort"
 	"strings"
+
+	"github.com/agext/levenshtein"
 )
 
 // A Command represents a single command.
@@ -222,7 +224,33 @@ func (cdr *Commander) Execute(ctx context.Context, args ...interface{}) ExitStat
 
 	// Cannot find this command.
 	cdr.topFlags.Usage()
+
+	if suggestion, found := cdr.suggestion(name); found {
+		fmt.Fprintf(cdr.Output, "\n%q is not a subcommand. Did you mean %q?\n", name, suggestion)
+	}
+
 	return ExitUsageError
+}
+
+// suggestion compares the given subcommand name to all registered commands to
+// check for typos. It returns the suggested alternative command, if any, and a
+// boolean indicating if a suggestion was found.
+func (cdr *Commander) suggestion(given string) (string, bool) {
+	// maxMatchDist is the maximum Levenshtein distance to consider an input a probable typo.
+	const maxMatchDist = 2
+
+	minDist := maxMatchDist + 1
+	suggestion := ""
+	for _, group := range cdr.commands {
+		for _, cmd := range group.commands {
+			name := cmd.Name()
+			if dist := levenshtein.Distance(given, name, nil); dist < minDist {
+				minDist = dist
+				suggestion = name
+			}
+		}
+	}
+	return suggestion, (minDist > 0 && minDist <= maxMatchDist)
 }
 
 // Sorting of a slice of command groups.
