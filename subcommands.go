@@ -69,7 +69,7 @@ type CommandGroup struct {
 	commands []Command
 }
 
-// Name returns the group name
+// Name returns the group name.
 func (g *CommandGroup) Name() string {
 	return g.name
 }
@@ -102,7 +102,7 @@ func NewCommander(topLevelFlags *flag.FlagSet, name string) *Commander {
 	return cdr
 }
 
-// Name returns the commander's name
+// Name returns the commander's name.
 func (cdr *Commander) Name() string {
 	return cdr.name
 }
