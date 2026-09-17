@@ -201,6 +201,7 @@ func (cdr *Commander) Execute(ctx context.Context, args ...interface{}) ExitStat
 				continue
 			}
 			f := flag.NewFlagSet(name, flag.ContinueOnError)
+			f.SetOutput(cdr.Error)
 			f.Usage = func() { cdr.ExplainCommand(cdr.Error, cmd) }
 			cmd.SetFlags(f)
 			if err := f.Parse(cdr.topFlags.Args()[1:]); err != nil {
