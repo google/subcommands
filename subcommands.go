@@ -112,6 +112,25 @@ func (cdr *Commander) Name() string {
 // The empty string is an acceptable group name; such subcommands are
 // explained first before named groups.
 func (cdr *Commander) Register(cmd Command, group string) {
+	name := cmd.Name()
+	// First, remove any existing command with the same name from any group.
+	for _, g := range cdr.commands {
+		for i, c := range g.commands {
+			if c.Name() == name {
+				g.commands = append(g.commands[:i], g.commands[i+1:]...)
+				break
+			}
+		}
+	}
+	// Clean up empty groups if any resulted from removal.
+	nonEmpty := cdr.commands[:0]
+	for _, g := range cdr.commands {
+		if len(g.commands) > 0 || g.name == group {
+			nonEmpty = append(nonEmpty, g)
+		}
+	}
+	cdr.commands = nonEmpty
+
 	for _, g := range cdr.commands {
 		if g.name == group {
 			g.commands = append(g.commands, cmd)
@@ -123,6 +142,7 @@ func (cdr *Commander) Register(cmd Command, group string) {
 		commands: []Command{cmd},
 	})
 }
+
 
 // ImportantFlag marks a top-level flag as important, which means it
 // will be printed out as part of the output of an ordinary "help"
